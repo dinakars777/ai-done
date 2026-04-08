@@ -108,7 +108,7 @@ MIT
 
 - [ai-done-hooks](https://github.com/dinakars777/ai-done-hooks) - Simple hook configs (no app needed)
 - [moody](https://github.com/dinakars777/moody) - macOS menu bar mood indicator
-- [USB-Clawd](https://x.com/i/grok/share/4489f72c13b6405a9d8024b5f08c2247) - Physical notification device
+- [USB-Clawd](https://x.com/BenJames_____/status/2041157626155741272?s=20) - Physical notification device
 
 ---
 
