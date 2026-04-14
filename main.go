@@ -100,8 +100,16 @@ func watchAIActivity() {
 	kiroHooksDir := filepath.Join(homeDir, ".kiro", "hooks")
 	
 	if _, err := os.Stat(kiroHooksDir); err == nil {
+		// Watch the directory
 		app.watcher.Add(kiroHooksDir)
-		log.Printf("Watching: %s\n", kiroHooksDir)
+		log.Printf("Watching directory: %s\n", kiroHooksDir)
+		
+		// Also watch existing hook files
+		files, _ := filepath.Glob(filepath.Join(kiroHooksDir, "*.json"))
+		for _, file := range files {
+			app.watcher.Add(file)
+			log.Printf("Watching file: %s\n", file)
+		}
 	} else {
 		log.Printf("Kiro hooks directory not found: %s\n", kiroHooksDir)
 	}
@@ -114,8 +122,16 @@ func watchAIActivity() {
 				return
 			}
 			
+			log.Printf("Event: %s %s\n", event.Op, event.Name)
+			
 			if event.Op&fsnotify.Write == fsnotify.Write {
 				handleHookEvent(event.Name)
+			} else if event.Op&fsnotify.Create == fsnotify.Create {
+				// New file created, start watching it
+				if filepath.Ext(event.Name) == ".json" {
+					app.watcher.Add(event.Name)
+					log.Printf("Now watching new file: %s\n", event.Name)
+				}
 			}
 			
 		case err, ok := <-app.watcher.Errors:
@@ -128,21 +144,32 @@ func watchAIActivity() {
 }
 
 func handleHookEvent(filename string) {
+	log.Printf("Handling hook event for: %s\n", filename)
+	
 	// Read the hook file to determine event type
 	data, err := os.ReadFile(filename)
 	if err != nil {
+		log.Printf("Error reading file: %v\n", err)
 		return
 	}
+	
+	log.Printf("File content: %s\n", string(data))
 	
 	var hook map[string]interface{}
 	if err := json.Unmarshal(data, &hook); err != nil {
+		log.Printf("Error parsing JSON: %v\n", err)
 		return
 	}
 	
+	log.Printf("Parsed hook: %+v\n", hook)
+	
 	// Check if this is an agentStop event
 	if when, ok := hook["when"].(map[string]interface{}); ok {
+		log.Printf("Found 'when' section: %+v\n", when)
 		if eventType, ok := when["type"].(string); ok {
+			log.Printf("Event type: %s\n", eventType)
 			if eventType == "agentStop" {
+				log.Println("Triggering AI Done notification!")
 				onAIDone()
 			}
 		}
@@ -150,18 +177,26 @@ func handleHookEvent(filename string) {
 }
 
 func onAIDone() {
+	log.Println("onAIDone() called")
+	
 	// Update status
 	app.status = StatusDone
+	log.Println("Status updated to Done")
+	
 	updateMenuBarIcon()
+	log.Println("Menu bar icon updated")
 	
 	// Play sound
 	playSound()
+	log.Println("Sound played")
 	
 	// Show notification
 	showNotification("AI Done", "Code generation complete!")
+	log.Println("Notification shown")
 	
 	// Reset to idle after 3 seconds
 	time.AfterFunc(3*time.Second, func() {
+		log.Println("Resetting to idle")
 		app.status = StatusIdle
 		updateMenuBarIcon()
 	})
