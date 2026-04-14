@@ -2,37 +2,38 @@
 
 > macOS menu bar app that notifies you when AI coding assistants finish
 
-Never miss when your AI finishes generating code. AI Done sits in your menu bar and gives you instant notifications when Cursor, Windsurf, Kiro, or other AI IDEs complete their responses.
-
-![Demo](demo.gif)
+Never miss when your AI finishes generating code. AI Done sits in your menu bar and gives you instant notifications when Kiro or other AI IDEs complete their responses.
 
 ## ✨ Features
 
-- 🎯 **Menu bar indicator** - See AI status at a glance
-- 🔊 **Sound notifications** - Hear when AI finishes
+- 🎯 **Menu bar indicator** - See AI status at a glance (💤 idle, 🤔 thinking, ✅ done, ❌ error)
+- 🔊 **Sound notifications** - Hear when AI finishes (Glass sound)
 - 💬 **Desktop notifications** - Get popup alerts
-- 🎨 **Customizable** - Choose your sounds and notification style
-- ⚡ **Lightweight** - Minimal resource usage
-- 🔌 **Multi-IDE support** - Works with Cursor, Windsurf, Kiro, and more
+- ⚡ **Lightweight** - Minimal resource usage, written in Go
+- 🔌 **Hook-based** - Works with Kiro hooks system
 
 ## 🚀 Installation
 
-### Homebrew (Coming Soon)
+### Using Go
+
 ```bash
-brew install --cask ai-done
+go install github.com/dinakars777/ai-done@latest
 ```
 
-### Manual Install
-1. Download the latest release from [Releases](https://github.com/dinakars777/ai-done/releases)
-2. Drag `AI Done.app` to your Applications folder
-3. Launch AI Done
-4. Grant necessary permissions when prompted
+### From Source
+
+```bash
+git clone https://github.com/dinakars777/ai-done
+cd ai-done
+go build
+./ai-done
+```
 
 ## 🎯 How It Works
 
 AI Done monitors your AI IDE's activity by:
-1. Watching for hook events from supported IDEs
-2. Detecting when AI starts/stops generating code
+1. Watching `~/.kiro/hooks/` directory for hook events
+2. Detecting when AI stops generating code (`agentStop` event)
 3. Showing status in menu bar
 4. Playing sound and showing notification when done
 
@@ -40,35 +41,31 @@ AI Done monitors your AI IDE's activity by:
 
 ### For Kiro
 
-AI Done automatically detects Kiro. Just make sure Kiro is running.
+1. Make sure you have Kiro hooks configured
+2. Run `ai-done` - it will appear in your menu bar
+3. The app automatically watches for `agentStop` events
 
-### For Cursor
+### Testing
 
-1. Open Cursor settings
-2. Add AI Done integration (automatic on first launch)
-3. Restart Cursor
+Run the included test script to verify notifications work:
 
-### For Windsurf
+```bash
+cd ai-done
+./test-notification.sh
+```
 
-1. Open Windsurf settings
-2. Enable AI Done notifications
-3. Restart Windsurf
-
-## ⚙️ Configuration
-
-Click the menu bar icon → Preferences to customize:
-
-- **Notification Style**: Sound only, popup only, or both
-- **Sound**: Choose from system sounds or custom audio files
-- **Quiet Hours**: Disable notifications during specific times
-- **IDE Detection**: Enable/disable specific IDEs
+You should see:
+1. Menu bar icon change to ✅
+2. Hear a 'Glass' sound
+3. See a notification: "AI Done: Code generation complete!"
+4. Icon returns to 💤 after 3 seconds
 
 ## 🎨 Menu Bar States
 
-- 💤 **Gray** - No AI activity
-- 🤔 **Yellow** - AI is thinking/generating
-- ✅ **Green** - AI just finished (briefly)
-- ❌ **Red** - AI encountered an error
+- 💤 **Idle** - No AI activity
+- 🤔 **Thinking** - AI is generating (future feature)
+- ✅ **Done** - AI just finished
+- ❌ **Error** - AI encountered an error (future feature)
 
 ## 🛠️ Building from Source
 
@@ -77,28 +74,29 @@ Click the menu bar icon → Preferences to customize:
 git clone https://github.com/dinakars777/ai-done
 cd ai-done
 
-# Install dependencies
-npm install
+# Download dependencies
+go mod tidy
 
-# Run in development
-npm run dev
+# Build
+go build
 
-# Build for production
-npm run build
+# Run
+./ai-done
 ```
 
 ## 📋 Requirements
 
-- macOS 12.0 or later
-- One of: Cursor, Windsurf, Kiro, or other supported AI IDE
+- macOS 10.12 or later
+- Go 1.21+ (for building from source)
+- Kiro IDE with hooks configured
 
 ## 🤝 Contributing
 
-Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions welcome! Please open an issue or PR.
 
-### Adding IDE Support
+### Good First Issues
 
-Want to add support for another AI IDE? Check out [IDE_INTEGRATION.md](docs/IDE_INTEGRATION.md) for guidelines.
+Check out the [issues](https://github.com/dinakars777/ai-done/issues) labeled `good first issue`.
 
 ## 📝 License
 
@@ -107,7 +105,7 @@ MIT
 ## 🌟 Related Projects
 
 - [ai-done-hooks](https://github.com/dinakars777/ai-done-hooks) - Simple hook configs (no app needed)
-- [moody](https://github.com/dinakars777/moody) - macOS menu bar mood indicator
+- [moody](https://github.com/dinakars777/moody) - macOS menu bar mood indicator with AI monitoring
 - [USB-Clawd](https://x.com/BenJames_____/status/2041157626155741272?s=20) - Physical notification device
 
 ---
